@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {api_key, base_url} from '../utils/constants.ts';
-import {setLoading, setMessage, setWeatherInfo} from "../features/weatherSlice.ts";
-import {fetchWeather} from "../features/api/weatherApi.ts";
+import {fetchWeather, setMessage} from "../features/weatherSlice.ts";
 import {useAppDispatch} from "../features/hooks.ts";
 
 
@@ -13,32 +12,12 @@ const Form = () => {
         e.preventDefault();
 
         if (city.trim() === '') {
-            dispatch(setMessage('Please enter a city name'));
+            dispatch(setMessage('Enter city name'));
             return;
         }
-        dispatch(setLoading(true));
-
-        try {
-            const weatherData = await fetchWeather(city, api_key, base_url);
-            if (weatherData) {
-                dispatch(setWeatherInfo(weatherData));
-            } else {
-                dispatch(setMessage('Weather data not available...'));
-            }
-            dispatch(setMessage(''));
-
-        } catch (error) {
-            if (error instanceof Error) {
-                dispatch(setMessage(error.message));
-            } else {
-                dispatch(setMessage('Unknown error...'));
-            }
-        } finally {
-            dispatch(setLoading(false));
-        }
-        setCity('');
+        dispatch(setMessage(''));
+        dispatch(fetchWeather({city, apiKey: api_key, baseUrl: base_url}));
     };
-
     return (
         <form onSubmit={handleSubmit}>
             <input
@@ -47,7 +26,9 @@ const Form = () => {
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="Enter city"
             />
-            <button type="submit">Get Weather</button>
+            <button type="submit">
+                Get Weather
+            </button>
         </form>
     );
 };
